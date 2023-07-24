@@ -1,0 +1,32 @@
+steps:
+  # Build da imagem Docker
+- name: "gcr.io/cloud-builders/docker"
+  args:
+  - "build"
+  - "-t"
+  - "southamerica-east1-docker.pkg.dev/$PROJECT_ID/cotacoes/cotacoes_image:$COMMIT_SHA"
+  - "."
+
+  # Faz o push da imagem criada para o Artifact Registry
+- name: "gcr.io/cloud-builders/docker"
+  args:
+  - "push"
+  - "southamerica-east1-docker.pkg.dev/$PROJECT_ID/cotacoes/cotacoes_image:$COMMIT_SHA"
+
+  # Configuração do ambiente para o Cloud Run
+- name: "gcr.io/cloud-builders/gcloud"
+  args:
+  - "run"
+  - "deploy"
+  - "cotacoes-image"
+  - "--image"
+  - "southamerica-east1-docker.pkg.dev/$PROJECT_ID/cotacoes/cotacoes_image:$COMMIT_SHA"
+  - "--region"
+  - "southamerica-east1"
+  - "--allow-unauthenticated"
+  - "--port"
+  - "8000"
+  - "--cpu"
+  - "1"
+  - "--memory"
+  - "256Mi"

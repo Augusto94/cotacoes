@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "dolar_cambio"
+version = "0.1.0"
+description = ""
+authors = ["augusto94 <augustoarl@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+django = "4.2.3"
+aiohttp = "3.8.4"
+pandas = "2.0.3"
+psycopg2 = "2.9.6"
+django-environ = "0.10.0"
+djangorestframework = "3.14.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ipdb = "0.13.9"
+pytz = "2023.3"
+pre-commit = "3.3.1"
+autoflake = "2.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
