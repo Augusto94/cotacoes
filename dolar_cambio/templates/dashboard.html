@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,38 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Incluir o CSS do Pikaday -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/css/pikaday.min.css">
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            margin-top: 50px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
-
-        label {
-            font-weight: 500;
-        }
-
-        .form-control {
-            font-size: 16px;
-        }
-
-        #chart-container {
-            margin-top: 30px;
-            /* Define a largura fixa para o contêiner do gráfico */
-            width: 100%;
-            max-width: 600px; /* Define uma largura máxima para o gráfico */
-            min-height: 400px;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'src/styles/dashboard.css' %}">
 </head>
 <body>
     <div class="container">
@@ -69,6 +39,11 @@
             </div>
         </div>
     </div>
+    <script>
+        var data = {{ dados_cotacao | safe }};
+        var data_inicio = "{{ data_inicio }}"
+        var data_fim = "{{ data_fim }}"
+    </script>
 
     <!-- Incluir bibliotecas do Bootstrap, Highcharts, DateFns e Pikaday -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
@@ -78,137 +53,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pikaday/1.8.0/pikaday.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 
-    <script>
-        function isDiaUtil(date) {
-            const day = date.day();
-            return day >= 1 && day <= 5; // 1 é segunda-feira e 5 é sexta-feira
-        }
-
-        // Função para adicionar um número de dias úteis a uma data
-        function adicionarDiasUteis(date, dias) {
-            let diasAdicionados = 0;
-            date.subtract(1, 'day')
-            while (diasAdicionados < dias) {
-                date.add(1, 'day');
-                if (isDiaUtil(date)) {
-                    diasAdicionados++;
-                }
-            }
-
-            return date;
-        }
-
-        // Função para subtrair um número de dias úteis de uma data
-        function subtrairDiasUteis(date, dias) {
-            let diasSubtraidos = 0;
-            date.add(1, 'day')
-            while (diasSubtraidos < dias) {
-                date.subtract(1, 'day');
-                if (isDiaUtil(date)) {
-                    diasSubtraidos++;
-                }
-            }
-
-            return date;
-        }
-
-        // Função para inicializar os datepickers
-        function initDatePickers() {
-            var dataInicioInput = document.getElementById('data_inicio');
-            var dataFimInput = document.getElementById('data_fim');
-            var pickerInicio = new Pikaday({
-                field: dataInicioInput,
-                format: 'YYYY-MM-DD', // Formato da data
-                onSelect: function(selectedDate) {
-                    var dataFim = adicionarDiasUteis(moment(selectedDate), 5).format("YYYY-MM-DD");
-                    dataFimInput.value = moment(dataFim).toString().slice(0, 15);
-                }
-            });
-
-            var pickerFim = new Pikaday({
-                field: dataFimInput,
-                format: 'YYYY-MM-DD', // Formato da data
-                onSelect: function(selectedDate) {
-                    var dataInicio = subtrairDiasUteis(moment(selectedDate), 5).format("YYYY-MM-DD");
-                    dataInicioInput.value = moment(dataInicio).toString().slice(0, 15);
-                }
-            });
-        }
-
-        // Função para gerar o gráfico de barras com base na moeda selecionada
-        var data = {{ dados_cotacao | safe }};
-
-        function generateChart(selectedMoeda) {
-
-            var data_inicio = "{{ data_inicio }}"
-            var data_fim = "{{ data_fim }}"
-            console.log(data_inicio)
-
-            var dataInicioInput = document.getElementById('data_inicio');
-            var dataFimInput = document.getElementById('data_fim');
-
-            dataInicioInput.value = moment(data_inicio).toString().slice(0, 15);
-            dataFimInput.value = moment(data_fim).toString().slice(0, 15);
-
-            var chartData = data.filter(item => item.moeda === selectedMoeda);
-            var dates = [...new Set(chartData.map(item => item.data))];
-
-            var categories = dates.map(date => date);
-            var seriesData = dates.map(date => {
-                var dataForDate = chartData.filter(item => item.data === date);
-                var totalValue = dataForDate.reduce((sum, item) => sum + item.valor, 0);
-                return totalValue;
-            });
-
-            Highcharts.chart('chart-container', {
-                chart: {
-                    type: 'line' // Mudamos para 'line' para ter um gráfico de linhas
-                },
-                title: {
-                    text: 'Cotação do Dólar US$'
-                },
-                xAxis: {
-                    categories: categories
-                },
-                yAxis: {
-                    title: {
-                        text: 'Valor'
-                    },
-                    tickInterval: 0.05
-                },
-                series: [{
-                    name: selectedMoeda,
-                    data: seriesData
-                }]
-            });
-        }
-
-        function consultarDatas() {
-            var dataInicio = document.getElementById('data_inicio').value;
-            var dataFim = document.getElementById('data_fim').value;
-
-            // Montar a URL com as datas selecionadas como parâmetros de consulta
-            var urlConsulta = '?data_inicio=' + moment(dataInicio).format("YYYY-MM-DD") + '&data_fim=' + moment(dataFim).format("YYYY-MM-DD");
-
-            // Redirecionar para a URL de consulta
-            window.location.href = urlConsulta;
-        }
-
-        // Adicionar o evento de clique ao botão "Consultar"
-        document.getElementById('btnConsultar').addEventListener('click', consultarDatas);
-
-        // Função para atualizar o gráfico quando a moeda selecionada mudar
-        document.getElementById('moeda').addEventListener('change', function() {
-            var selectedMoeda = this.value;
-            generateChart(selectedMoeda);
-        });
-
-        // Gerar o gráfico inicialmente usando a primeira moeda (Real)
-        generateChart('Real');
-
-        // Inicializar os datepickers
-        initDatePickers();
-
-    </script>
+    <script src="{% static 'src/scripts/chart.js' %}"></script>
+    <script src="{% static 'src/scripts/calendar.js' %}"></script>
 </body>
 </html>
