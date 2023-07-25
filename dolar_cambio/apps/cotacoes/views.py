@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Dict
 
 import pandas as pd
+from dateparser import parse as parse_date
 from django.contrib import messages
 from django.views.generic import TemplateView
 
@@ -23,19 +24,24 @@ class CotacoesView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # Verifica se os parâmetros de data foram fornecidos na URL
-        data_inicio_str = self.request.GET.get("data_inicio")
-        data_fim_str = self.request.GET.get("data_fim")
+        data_inicio_str = self.request.GET.get("data_inicio", "")
+        data_fim_str = self.request.GET.get("data_fim", "")
+
+        data_inicio = parse_date(data_inicio_str)
+        data_fim = parse_date(data_fim_str)
 
         # Verifica se datas fornecidas possuem um intervalo válido
-        if data_inicio_str:
-            data_fim = datetime.strptime(data_fim_str, "%Y-%m-%d").date()
-            if data_inicio_str not in pd.date_range(end=data_fim, periods=5, freq="B"):
+        if data_inicio:
+            data_inicio = data_inicio.date()
+            data_fim = data_fim.date()
+            if str(data_inicio) <= str(pd.date_range(end=data_fim, periods=6, freq="B")[0].date()):
                 messages.add_message(
                     self.request,
                     messages.WARNING,
                     f"Intervalo de datas ({data_inicio_str} -> {data_fim_str}) é maior do que 5 dias úteis.",
                 )
-                data_inicio_str = data_fim_str = None
+                data_inicio = None
+                data_fim = None
 
         # Obtém a data da cotação mais recente no banco
         data_atual = Cotacao.objects.order_by("-data").values_list("data", flat=True).first()
@@ -44,15 +50,9 @@ class CotacoesView(TemplateView):
         # Calcula a data 5 dias úteis atrás em relação à data atual
         cinco_dias_uteis_atras = pd.date_range(end=data_atual, periods=5, freq="B")[0].date()
 
-        # Converte as strings em objetos de data se fornecidos, caso contrário, usa as datas padrão
-        data_inicio = (
-            datetime.strptime(data_inicio_str, "%Y-%m-%d").date()
-            if data_inicio_str
-            else cinco_dias_uteis_atras
-        )
-        data_fim = (
-            datetime.strptime(data_fim_str, "%Y-%m-%d").date() if data_fim_str else data_atual
-        )
+        # Usa as datas fornecidas se houver, caso contrário, usa as datas padrão
+        data_inicio = data_inicio if data_inicio else cinco_dias_uteis_atras
+        data_fim = data_fim if data_fim else data_atual
 
         cotacoes = Cotacao.objects.filter(data__gte=data_inicio, data__lte=data_fim).order_by(
             "data"

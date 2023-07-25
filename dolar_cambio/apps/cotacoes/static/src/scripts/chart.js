@@ -4,8 +4,8 @@ function generateChart(selectedMoeda) {
     var dataInicioInput = document.getElementById('data_inicio');
     var dataFimInput = document.getElementById('data_fim');
 
-    dataInicioInput.value = moment(data_inicio).toString().slice(0, 15);
-    dataFimInput.value = moment(data_fim).toString().slice(0, 15);
+    dataInicioInput.value = moment(data_inicio).format("llll").slice(0, -9);
+    dataFimInput.value = moment(data_fim).format("llll").slice(0, -9);
 
     var chartData = data.filter(item => item.moeda === selectedMoeda);
     var dates = [...new Set(chartData.map(item => item.data))];
@@ -40,6 +40,7 @@ function generateChart(selectedMoeda) {
     });
 }
 
+moment.locale('pt-br');
 // Função para atualizar o gráfico quando a moeda selecionada mudar
 document.getElementById('moeda').addEventListener('change', function() {
     var selectedMoeda = this.value;

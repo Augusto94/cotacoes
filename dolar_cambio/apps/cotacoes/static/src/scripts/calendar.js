@@ -1,3 +1,12 @@
+var i18n = {
+    previousMonth: 'Mês anterior',
+    nextMonth: 'Próximo mês',
+    months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+    weekdays: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'],
+    weekdaysShort: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+};
+
+
 function isDiaUtil(date) {
     const day = date.day();
     return day >= 1 && day <= 5; // 1 é segunda-feira e 5 é sexta-feira
@@ -38,18 +47,24 @@ function initDatePickers() {
     var pickerInicio = new Pikaday({
         field: dataInicioInput,
         format: 'YYYY-MM-DD', // Formato da data
+        maxDate: moment().toDate(),
+        i18n: i18n,
         onSelect: function(selectedDate) {
             var dataFim = adicionarDiasUteis(moment(selectedDate), 5).format("YYYY-MM-DD");
-            dataFimInput.value = moment(dataFim).toString().slice(0, 15);
+            dataInicioInput.value = moment(selectedDate).format("llll").slice(0, -9);
+            dataFimInput.value = moment(dataFim).format("llll").slice(0, -9);
         }
     });
 
     var pickerFim = new Pikaday({
         field: dataFimInput,
         format: 'YYYY-MM-DD', // Formato da data
+        maxDate: moment().toDate(),
+        i18n: i18n,
         onSelect: function(selectedDate) {
             var dataInicio = subtrairDiasUteis(moment(selectedDate), 5).format("YYYY-MM-DD");
-            dataInicioInput.value = moment(dataInicio).toString().slice(0, 15);
+            dataFimInput.value = moment(selectedDate).format("llll").slice(0, -9);
+            dataInicioInput.value = moment(dataInicio).format("llll").slice(0, -9);
         }
     });
 }
@@ -59,12 +74,13 @@ function consultarDatas() {
     var dataFim = document.getElementById('data_fim').value;
 
     // Montar a URL com as datas selecionadas como parâmetros de consulta
-    var urlConsulta = '?data_inicio=' + moment(dataInicio).format("YYYY-MM-DD") + '&data_fim=' + moment(dataFim).format("YYYY-MM-DD");
+    var urlConsulta = '?data_inicio=' + moment(dataInicio)._i.slice(5).split(" ").join("-") + '&data_fim=' + moment(dataFim)._i.slice(5).split(" ").join("-")
 
     // Redirecionar para a URL de consulta
     window.location.href = urlConsulta;
 }
 
+moment.locale('pt-br');
 // Adicionar o evento de clique ao botão "Consultar"
 document.getElementById('btnConsultar').addEventListener('click', consultarDatas);
 
