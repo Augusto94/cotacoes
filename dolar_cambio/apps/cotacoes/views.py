@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Dict
 
 import pandas as pd
+from django.contrib import messages
 from django.views.generic import TemplateView
 
 from cotacoes.models import Cotacao
@@ -24,6 +25,17 @@ class CotacoesView(TemplateView):
         # Verifica se os parâmetros de data foram fornecidos na URL
         data_inicio_str = self.request.GET.get("data_inicio")
         data_fim_str = self.request.GET.get("data_fim")
+
+        # Verifica se datas fornecidas possuem um intervalo válido
+        if data_inicio_str:
+            data_fim = datetime.strptime(data_fim_str, "%Y-%m-%d").date()
+            if data_inicio_str not in pd.date_range(end=data_fim, periods=5, freq="B"):
+                messages.add_message(
+                    self.request,
+                    messages.WARNING,
+                    f"Intervalo de datas ({data_inicio_str} -> {data_fim_str}) é maior do que 5 dias úteis.",
+                )
+                data_inicio_str = data_fim_str = None
 
         # Obtém a data da cotação mais recente no banco
         data_atual = Cotacao.objects.order_by("-data").values_list("data", flat=True).first()
