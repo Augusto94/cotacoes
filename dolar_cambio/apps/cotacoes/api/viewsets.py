@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,6 +14,12 @@ class CotacaoViewSet(ModelViewSet):
     serializer_class = CotacaoSerializer
     queryset = Cotacao.objects.order_by("-data")
     permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = [
+        "data",
+        "moeda",
+        "sigla",
+    ]
 
 
 class AtualizarCotacoesViewSet(APIView):
