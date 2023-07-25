@@ -10,7 +10,7 @@ from cotacoes.models import Cotacao
 
 
 class CotacoesView(TemplateView):
-    template_name = "dashboard.html"
+    template_name = "grafico.html"
 
     def get_context_data(self, **kwargs) -> Dict:
         """Retorna o contexto para renderizar o gŕafico na página de cotações.

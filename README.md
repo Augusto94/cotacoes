@@ -30,6 +30,8 @@ A aplicação também possui uma API usando o Django Rest Framework, na qual os 
 aos dados de todas as cotações existentes no banco de dados. Para acessar o endpoint da API, basta clicar
 [aqui](https://cotacoes-image-2qiqrd5tla-rj.a.run.app/api/cotacoes/).
 A API possui paginação, com 100 objetos retornados por página, e está disponível apenas para leitura dos dados.
+Possui também a possibilidade de filtrar os dados pelos campos `moeda`, `data` e `sigla`.
+[Aqui](https://cotacoes-image-2qiqrd5tla-rj.a.run.app/api/cotacoes/?moeda=Real) esta um exemplo de filtro pela moeda Real.
 Além disso, a API possui outro endpoint que é utilizado para atualizar o banco de dados, buscando as cotações
 diariamente e permitindo que os usuários tenham acesso aos dados mais atualizados de cotações.
 
@@ -67,8 +69,9 @@ Certifique-se de ter instalado os seguintes requisitos antes de executar o proje
     ```bash
     cd dolar_cambio
     ```
+3. Criei um arquivo chamado `.env` baseado no arquivo `.env-example`.
 
-3. Execute o comando do Docker Compose para construir e iniciar o projeto:
+4. Execute o comando do Docker Compose para construir e iniciar o projeto:
 
     ```bash
     docker-compose up
@@ -80,6 +83,10 @@ Certifique-se de ter instalado os seguintes requisitos antes de executar o proje
 Nesse momento, a aplicação web implementada utilizando o framework Django estará
 rodando e disponível no endereço: `http://localhost:8000/`.
 
+Para popular o banco de dados basta rodar os seguintes comandos na raiz do projeto:
+1. `make shell`
+2. `from cotacoes.populate_db import popular_banco`
+3. `popular_banco()`
 
 ## Explicação do Projeto
 Como já dito anteriormente, o projeto web foi desenvolvido utilizando o framework Django e a API
@@ -135,6 +142,8 @@ A cobertura mínima dos testes definida é de 95% e no momente da entrega do des
 #### Possíveis melhorias
 
  - Melhorar a tela onde o gráfico é exibido, utilizando ferramentas de frontend mais avançadas. Uma opção seria adotar um framework de frontend, como o React, que oferece recursos modernos e uma melhor experiência ao usuário.
+
+ - Fazer uso de alguma ferramenta de CI (Githb Actions, Travis CI, etc) para realizar a integração contínua do projeto.
 
  - Utilizar Celery Beat para execução de tarefas agendadas e Celery para execução de tarefas em segundo plano que possam demorar, evitando travamentos na aplicação e garantindo uma melhor performance.
 
