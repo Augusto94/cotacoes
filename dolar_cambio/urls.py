@@ -16,16 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework import routers
 
-from cotacoes.api.viewsets import CotacaoViewSet
 from cotacoes.views import CotacoesView
-
-router = routers.DefaultRouter()
-router.register("cotacoes", CotacaoViewSet, basename="cotacao")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include(router.urls)),
+    path("api/", include("cotacoes.api.routes")),
     path("", CotacoesView.as_view(), name="cotacoes_view"),
 ]

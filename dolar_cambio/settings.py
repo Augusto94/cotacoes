@@ -29,7 +29,7 @@ path.insert(0, str(APPS_DIR))
 SECRET_KEY = "django-insecure-acpa8$!3r@m_qf+hqbg#b1lnvz)2k0c&71^o4z(=q28-s_kmw5"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = environ("DEBUG")
 
 ALLOWED_HOSTS = ["*"]
 
@@ -110,9 +110,6 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
-    ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
 }
