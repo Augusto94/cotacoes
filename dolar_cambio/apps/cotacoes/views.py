@@ -26,7 +26,8 @@ class CotacoesView(TemplateView):
         data_fim_str = self.request.GET.get("data_fim")
 
         # Obtém a data da cotação mais recente no banco
-        data_atual = Cotacao.objects.order_by("-data").values_list("data", flat=True).first().date()
+        data_atual = Cotacao.objects.order_by("-data").values_list("data", flat=True).first()
+        data_atual = data_atual.date() if data_atual else datetime.now().date()
 
         # Calcula a data 5 dias úteis atrás em relação à data atual
         cinco_dias_uteis_atras = pd.date_range(end=data_atual, periods=5, freq="B")[0].date()

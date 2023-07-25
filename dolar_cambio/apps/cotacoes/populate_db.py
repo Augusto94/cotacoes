@@ -43,7 +43,7 @@ def get_cotacoes_json(date: datetime) -> Dict:
     return response.json()
 
 
-def create_cotacoes(json_data: Dict) -> None:
+def criar_cotacoes(json_data: Dict) -> None:
     """Cria os objetos Cotacao no banco de dados a partir dos dados obtidos na API.
 
     Args:
@@ -82,4 +82,4 @@ def popular_banco() -> None:
     for data in datas_list:
         cotacoes_json = get_cotacoes_json(data)
         if cotacoes_json.get("date") == str(data):
-            create_cotacoes(cotacoes_json)
+            criar_cotacoes(cotacoes_json)
